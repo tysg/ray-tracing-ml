@@ -11,11 +11,14 @@ let ( +| ) u v = { x = u.x +. v.x; y = u.y +. v.y; z = u.z +. v.z }
 
 let ( -| ) u v = { x = u.x -. v.x; y = u.y -. v.y; z = u.z -. v.z }
 
+(** vector multiplication *)
 let ( *| ) u v = { x = u.x *. v.x; y = u.y *. v.y; z = u.z *. v.z }
 
-let ( /| ) u t = { x = u.x /. t; y = u.y /. t; z = u.z /. t }
+(** scalar division *)
+let ( // ) u t = { x = u.x /. t; y = u.y /. t; z = u.z /. t }
 
-let scale u n = { x = u.x *. n; y = u.y *. n; z = u.z *. n }
+(** scalar multiplication *)
+let ( */ ) u n = { x = u.x *. n; y = u.y *. n; z = u.z *. n }
 
 let dot u v = (u.x *. v.x) +. (u.y *. v.y) +. (u.z *. v.z)
 
@@ -26,4 +29,8 @@ let cross u v =
     z = (u.x *. v.y) -. (u.y *. v.x);
   }
 
-let unit_vector v = v /| length v
+let unit_vector v = v // length v
+
+type point3 = vec3
+
+type color = vec3

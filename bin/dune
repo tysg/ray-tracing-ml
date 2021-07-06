@@ -1,4 +1,3 @@
 (executable
- (name ray_tracing)
- (libraries lib)
- )
+ (name main)
+ (libraries lib))
