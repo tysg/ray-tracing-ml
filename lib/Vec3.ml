@@ -1,5 +1,3 @@
-open Array
-
 type vec3 = { x : float; y : float; z : float }
 
 let length_squared v = (v.x ** 2.) +. (v.y ** 2.) +. (v.z ** 2.)
@@ -15,14 +13,17 @@ let ( -| ) u v = { x = u.x -. v.x; y = u.y -. v.y; z = u.z -. v.z }
 
 let ( *| ) u v = { x = u.x *. v.x; y = u.y *. v.y; z = u.z *. v.z }
 
-let ( /| ) (x, y, z) t = (x /. t, y /. t, z /. t)
+let ( /| ) u t = { x = u.x /. t; y = u.y /. t; z = u.z /. t }
 
-let scale v n = (get_x v *. n, get_y v *. n, get_z v *. n)
+let scale u n = { x = u.x *. n; y = u.y *. n; z = u.z *. n }
 
-let dot u v =
-  (get_x u *. get_x v) +. (get_y u *. get_y v) +. (get_z u *. get_z v)
+let dot u v = (u.x *. v.x) +. (u.y *. v.y) +. (u.z *. v.z)
 
-let cross (ux, uy, uz) (vx, vy, vz) =
-  ((uy *. vz) -. (uz *. vy), (uz *. vx) -. (ux *. vz), (ux *. vy) -. (uy *. vx))
+let cross u v =
+  {
+    x = (u.y *. v.z) -. (u.z *. v.y);
+    y = (u.z *. v.x) -. (u.x *. v.z);
+    z = (u.x *. v.y) -. (u.y *. v.x);
+  }
 
 let unit_vector v = v /| length v

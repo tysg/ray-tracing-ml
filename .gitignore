@@ -17,3 +17,5 @@ _perf
 dune.exe
 Makefile.dev
 src/dune/setup.ml
+
+image.ppm
