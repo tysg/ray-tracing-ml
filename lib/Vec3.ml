@@ -1,4 +1,6 @@
-type vec3 = { x : float; y : float; z : float }
+type t = { x : float; y : float; z : float }
+
+let create x y z = { x; y; z }
 
 let length_squared v = (v.x ** 2.) +. (v.y ** 2.) +. (v.z ** 2.)
 
@@ -8,6 +10,8 @@ let to_string v =
   string_of_float v.x ^ " " ^ string_of_float v.y ^ " " ^ string_of_float v.z
 
 let ( +| ) u v = { x = u.x +. v.x; y = u.y +. v.y; z = u.z +. v.z }
+
+let ( +/ ) u n = { x = u.x +. n; y = u.y +. n; z = u.z +. n }
 
 let ( -| ) u v = { x = u.x -. v.x; y = u.y -. v.y; z = u.z -. v.z }
 
@@ -31,6 +35,4 @@ let cross u v =
 
 let unit_vector v = v // length v
 
-type point3 = vec3
-
-type color = vec3
+let zero = { x = 0.; y = 0.; z = 0. }

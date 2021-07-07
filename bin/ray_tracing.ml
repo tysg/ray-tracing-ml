@@ -1,15 +1,27 @@
+open Lib
 open Lib.Vec3
-open Lib.Color
 open Lib.Ray
 
-let gradient (x : color) (y : color) t = (x */ (1.0 -. t)) +| (y */ t)
+let gradient (x : Vec3.t) (y : Vec3.t) t = (x */ (1.0 -. t)) +| (y */ t)
+
+let hit_sphere (center : Vec3.t) (radius : float) (ray : Ray.t) : float option =
+  let oc = ray.origin -| center in
+  let a = length_squared ray.direction in
+  let half_b = dot oc ray.direction in
+  let c = length_squared oc -. (radius *. radius) in
+  let delta = (half_b *. half_b) -. (a *. c) in
+  if delta >= 0. then Some ((~-.half_b -. sqrt delta) /. a) else None
 
 let ray_color ray =
-  let unit_direction = unit_vector ray.direction in
-  let t = 0.5 *. (unit_direction.y +. 1.0) in
-  let white = { x = 1.0; y = 1.0; z = 1.0 } in
-  let light_blue = { x = 0.5; y = 0.7; z = 1.0 } in
-  gradient white light_blue t
+  let sphere_center = { x = 0.; y = 0.; z = -1. } in
+  match hit_sphere sphere_center 0.5 ray with
+  | Some t ->
+      let normal = unit_vector ((ray @/ t) -| Vec3.create 0. 0. (-1.)) in
+      (normal +/ 1.) */ 0.5
+  | None ->
+      let unit_direction = unit_vector ray.direction in
+      let t = 0.5 *. (unit_direction.y +. 1.0) in
+      gradient Color.white Color.light_blue t
 
 (* image *)
 let aspect_ratio = 16. /. 9.
@@ -21,22 +33,19 @@ let viewport_width = aspect_ratio *. viewport_height
 
 let focal_length = 1.0
 
-let origin = { x = 0.; y = 0.; z = 0. }
+let origin = Vec3.zero
 
-let horizontal = { x = viewport_width; y = 0.; z = 0. }
+let horizontal = Vec3.create viewport_width 0. 0.
 
-let vertical = { x = 0.; y = viewport_height; z = 0. }
+let vertical = Vec3.create 0. viewport_height 0.
 
 let lower_left_corner =
   origin -| (horizontal // 2.) -| (vertical // 2.)
-  -| { x = 0.; y = 0.; z = focal_length }
+  -| Vec3.create 0. 0. focal_length
 
 let render_ray u v =
-  {
-    origin;
-    direction =
-      lower_left_corner +| (horizontal */ u) +| (vertical */ v) -| origin;
-  }
+  Ray.create origin
+    (lower_left_corner +| (horizontal */ u) +| (vertical */ v) -| origin)
 
 let render =
   let image_width = 400 in
@@ -50,7 +59,6 @@ let render =
       let to_frac i total = Float.of_int i /. Float.of_int (total - 1) in
       let u = to_frac i image_width in
       let v = to_frac j image_height in
-      render_ray u v |> ray_color |> write_color |> print_string
+      render_ray u v |> ray_color |> Color.write_color |> print_string
     done
   done
-
