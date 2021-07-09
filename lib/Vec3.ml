@@ -1,4 +1,8 @@
-type t = { x : float; y : float; z : float }
+type t =
+  { x : float
+  ; y : float
+  ; z : float
+  }
 
 let create x y z = { x; y; z }
 
@@ -8,6 +12,7 @@ let length v = sqrt (length_squared v)
 
 let to_string v =
   string_of_float v.x ^ " " ^ string_of_float v.y ^ " " ^ string_of_float v.z
+
 
 let ( +| ) u v = { x = u.x +. v.x; y = u.y +. v.y; z = u.z +. v.z }
 
@@ -27,12 +32,14 @@ let ( */ ) u n = { x = u.x *. n; y = u.y *. n; z = u.z *. n }
 let dot u v = (u.x *. v.x) +. (u.y *. v.y) +. (u.z *. v.z)
 
 let cross u v =
-  {
-    x = (u.y *. v.z) -. (u.z *. v.y);
-    y = (u.z *. v.x) -. (u.x *. v.z);
-    z = (u.x *. v.y) -. (u.y *. v.x);
+  { x = (u.y *. v.z) -. (u.z *. v.y)
+  ; y = (u.z *. v.x) -. (u.x *. v.z)
+  ; z = (u.x *. v.y) -. (u.y *. v.x)
   }
+
 
 let unit_vector v = v // length v
 
 let zero = { x = 0.; y = 0.; z = 0. }
+
+let neg v = create (-.v.x) (-.v.y) (-.v.z)
