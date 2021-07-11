@@ -43,3 +43,20 @@ let unit_vector v = v // length v
 let zero = { x = 0.; y = 0.; z = 0. }
 
 let neg v = create (-.v.x) (-.v.y) (-.v.z)
+
+let map_vec3 v fn = { x = fn v.x; y = fn v.y; z = fn v.z }
+
+let random =
+  create (Math.random_frac ()) (Math.random_frac ()) (Math.random_frac ())
+
+
+let random_range min max =
+  create
+    (Math.random_range min max)
+    (Math.random_range min max)
+    (Math.random_range min max)
+
+
+let rec random_in_unit_sphere () =
+  let p = random_range (-1.) 1. in
+  if length_squared p < 1. then p else random_in_unit_sphere ()
