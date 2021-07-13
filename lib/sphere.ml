@@ -1,13 +1,15 @@
 open Vec3
 open Ray
 open Base.Option
+open Material
 
 type t =
   { center : Vec3.t
   ; radius : float
+  ; material : Material.t
   }
 
-let create center radius = { center; radius }
+let create center radius material = { center; radius; material }
 
 let find_root a half_b c (min : float) (max : float) =
   let delta = (half_b *. half_b) -. (a *. c) in
@@ -37,9 +39,14 @@ let hit (r : Ray.t) t_min t_max (sphere : t) : hit_record option =
   let facing = find_facing_direction r normal in
   match facing with
   | Front ->
-      { point = p; normal; t = root; facing }
+      { point = p; normal; t = root; facing; material = sphere.material }
   | Back ->
-      { point = p; normal = neg normal; t = root; facing }
+      { point = p
+      ; normal = neg normal
+      ; t = root
+      ; facing
+      ; material = sphere.material
+      }
 
 
 let hit_list (r : Ray.t) t_min t_max objects : hit_record option =

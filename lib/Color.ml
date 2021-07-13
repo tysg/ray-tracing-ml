@@ -15,3 +15,5 @@ let white = { x = 1.0; y = 1.0; z = 1.0 }
 let light_blue = { x = 0.5; y = 0.7; z = 1.0 }
 
 let red = { x = 1.; y = 0.; z = 0. }
+
+let black = {x = 0. ; y = 0. ; z = 0. }

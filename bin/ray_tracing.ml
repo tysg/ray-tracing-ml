@@ -19,14 +19,11 @@ let rec ray_color world ray depth_limit =
   else
     match Sphere.hit_list ray 0.001 Float.max_float world with
     | Some hit_rec ->
-        let target =
-          hit_rec.point +| hit_rec.normal +| Vec3.random_in_unit_sphere ()
-        in
-        ray_color
-          world
-          (Ray.create hit_rec.point (target -| hit_rec.point))
-          (depth_limit - 1)
-        */ 0.5
+      ( match Material.scatter hit_rec ray with
+      | Some { attenuation; scattered_ray } ->
+          attenuation *| ray_color world scattered_ray (depth_limit - 1)
+      | None ->
+          Color.black )
     | None ->
         let unit_direction = unit_vector ray.direction in
         let t = 0.5 *. (unit_direction.y +. 1.0) in
@@ -47,9 +44,18 @@ let render =
     ^ string_of_int image_height
     ^ " "
     ^ "\n255\n" ) ;
+  let material_ground = Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
+  and material_center = Material.Lambertian { albedo = Vec3.create 0.7 0.3 0.3 }
+  and material_left =
+    Material.Metal { albedo = Vec3.create 0.8 0.8 0.8; fuzz = 0.3 }
+  and material_right =
+    Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 1. }
+  in
   let world =
-    [ Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100.
-    ; Sphere.create (Vec3.create 0. 0. (-1.)) 0.5
+    [ Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100. material_ground
+    ; Sphere.create (Vec3.create 0. 0. (-1.)) 0.5 material_center
+    ; Sphere.create (Vec3.create (-1.) 0. (-1.)) 0.5 material_left
+    ; Sphere.create (Vec3.create 1. 0. (-1.)) 0.5 material_right
     ]
   in
   for j = image_height - 1 downto 0 do
