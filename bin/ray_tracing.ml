@@ -17,7 +17,7 @@ let rec ray_color world ray depth_limit =
   if depth_limit <= 0
   then Vec3.zero
   else
-    match Sphere.hit_list ray 0. Float.max_float world with
+    match Sphere.hit_list ray 0.001 Float.max_float world with
     | Some hit_rec ->
         let target =
           hit_rec.point +| hit_rec.normal +| Vec3.random_in_unit_sphere ()

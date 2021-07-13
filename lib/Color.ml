@@ -4,7 +4,7 @@ let write_color pixel samples_per_pixel =
   let clamp x min max = if x < min then min else if x > max then max else x in
   let pixel =
     map_vec3 pixel (fun p ->
-        256. *. clamp (1.0 /. (Float.of_int samples_per_pixel) *. p) 0. 0.999 )
+        256. *. clamp (sqrt 1.0 /. Float.of_int samples_per_pixel *. p) 0. 0.999 )
   in
   let to_string f = string_of_int (Int.of_float f) in
   to_string pixel.x ^ " " ^ to_string pixel.y ^ " " ^ to_string pixel.z ^ "\n"
