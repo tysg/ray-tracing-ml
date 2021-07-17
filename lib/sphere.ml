@@ -47,15 +47,3 @@ let hit (r : Ray.t) t_min t_max (sphere : t) : hit_record option =
       ; facing
       ; material = sphere.material
       }
-
-
-let hit_list (r : Ray.t) t_min t_max objects : hit_record option =
-  let f acc obj =
-    match acc with
-    | None ->
-        hit r t_min t_max obj
-    | Some hit_rec as opt ->
-        let new_rec = hit r t_min hit_rec.t obj in
-        if is_some new_rec then new_rec else opt
-  in
-  List.fold_left f None objects

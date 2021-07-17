@@ -13,15 +13,15 @@ let hit_sphere (center : Vec3.t) (radius : float) (ray : Ray.t) : float option =
   if delta >= 0. then Some ((~-.half_b -. sqrt delta) /. a) else None
 
 
-let rec ray_color world ray depth_limit =
+let rec ray_color hittable ray depth_limit =
   if depth_limit <= 0
   then Vec3.zero
   else
-    match Sphere.hit_list ray 0.001 Float.max_float world with
+    match Hittable.hit ray 0.001 Float.max_float hittable with
     | Some hit_rec ->
       ( match Material.scatter hit_rec ray with
       | Some { attenuation; scattered_ray } ->
-          attenuation *| ray_color world scattered_ray (depth_limit - 1)
+          attenuation *| ray_color hittable scattered_ray (depth_limit - 1)
       | None ->
           Color.black )
     | None ->
@@ -52,11 +52,16 @@ let render =
     Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 1. }
   in
   let world =
-    [ Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100. material_ground
-    ; Sphere.create (Vec3.create 0. 0. (-1.)) 0.5 material_center
-    ; Sphere.create (Vec3.create (-1.) 0. (-1.)) 0.5 material_left
-    ; Sphere.create (Vec3.create 1. 0. (-1.)) 0.5 material_right
-    ]
+    Hittable.World
+      [ Hittable.Sphere
+          (Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100. material_ground)
+      ; Hittable.Sphere
+          (Sphere.create (Vec3.create 0. 0. (-1.)) 0.5 material_center)
+      ; Hittable.Sphere
+          (Sphere.create (Vec3.create (-1.) 0. (-1.)) 0.5 material_left)
+      ; Hittable.Sphere
+          (Sphere.create (Vec3.create 1. 0. (-1.)) 0.5 material_right)
+      ]
   in
   for j = image_height - 1 downto 0 do
     Printf.eprintf "Scanlines remaining: %d\n" j ;
