@@ -45,9 +45,10 @@ let render =
     ^ " "
     ^ "\n255\n" ) ;
   let material_ground = Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
-  and material_center = Material.Lambertian { albedo = Vec3.create 0.7 0.3 0.3 }
-  and material_left =
-    Material.Metal { albedo = Vec3.create 0.8 0.8 0.8; fuzz = 0.3 }
+  (* and material_center = Material.Dielectric { refraction_index = 1.5 }
+     and material_left = Material.Dielectric { refraction_index = 1.5 } *)
+  and material_center = Material.Lambertian { albedo = Vec3.create 0.1 0.2 0.3 }
+  and material_left = Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
   and material_right =
     Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 1. }
   in

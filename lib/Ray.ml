@@ -18,3 +18,11 @@ let ( @/ ) r t = at r t
 let find_facing_direction ray normal =
   if dot ray.direction normal < 0. then Front else Back
 
+
+let refract uv n etai_over_etat =
+  let cos_theta = min (dot (neg uv) n) 1. in
+  let r_out_perp = (uv +| (n */ cos_theta)) */ etai_over_etat in
+  let r_out_parallel =
+    n */ -.sqrt (abs_float 1. -. length_squared r_out_perp)
+  in
+  r_out_perp +| r_out_parallel

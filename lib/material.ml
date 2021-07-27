@@ -7,6 +7,7 @@ type t =
       { albedo : Vec3.t
       ; fuzz : float
       }
+  | Dielectric of { refraction_index : float }
 
 type hit_record =
   { point : Vec3.t
@@ -45,3 +46,11 @@ let scatter (hit_rec : hit_record) (ray_in : Ray.t) : scatter_result option =
         { scattered_ray = Ray.create hit_rec.point reflected
         ; attenuation = albedo
         }
+  | Dielectric { refraction_index = ir } ->
+      let attenuation = Color.white in
+      let refraction_ratio =
+        match hit_rec.facing with Front -> 1. /. ir | Back -> ir
+      in
+      let unit_dir = unit_vector ray_in.direction in
+      let refracted = Ray.refract unit_dir hit_rec.normal refraction_ratio in
+      Some { scattered_ray = Ray.create hit_rec.point refracted; attenuation }
