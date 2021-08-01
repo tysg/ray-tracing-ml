@@ -20,6 +20,8 @@ let ( +/ ) u n = { x = u.x +. n; y = u.y +. n; z = u.z +. n }
 
 let ( -| ) u v = { x = u.x -. v.x; y = u.y -. v.y; z = u.z -. v.z }
 
+let ( -/ ) u v = { x = u.x -. v; y = u.y -. v; z = u.z -. v }
+
 (** vector multiplication *)
 let ( *| ) u v = { x = u.x *. v.x; y = u.y *. v.y; z = u.z *. v.z }
 
@@ -72,3 +74,8 @@ let random_in_hemisphere normal =
 let is_near_zero u =
   let s = 1e-8 in
   u.x < s && u.y < s && u.z < s
+
+
+let rec random_in_unit_disk () =
+  let p = create (Random.float 2. -. 1.) (Random.float 2. -. 1.) 0. in
+  if length_squared p >= 1. then random_in_unit_disk () else p

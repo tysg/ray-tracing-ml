@@ -30,19 +30,9 @@ let rec ray_color hittable ray depth_limit =
         gradient Color.white Color.light_blue t
 
 
-
-
 let render =
   let () = Random.self_init () in
   let samples_per_pixel = 100 in
-  let camera =
-    Camera.create
-      (Vec3.create (-2.) 2. 1.)
-      (Vec3.create 0. 0. (-1.))
-      (Vec3.create 0. 1. 0.)
-      20.
-      (16. /. 9.)
-  in
   let aspect_ratio = 16. /. 9. in
   let image_width = 400 in
   let image_height = Int.of_float (Float.of_int image_width /. aspect_ratio) in
@@ -54,6 +44,18 @@ let render =
     ^ " "
     ^ "\n255\n" ) ;
 
+  let lookfrom = Vec3.create 3. 3. 2. in
+  let lookat = Vec3.create 0. 0. (-1.) in
+  let camera =
+    Camera.create
+      lookfrom
+      lookat
+      (Vec3.create 0. 1. 0.)
+      20.
+      aspect_ratio
+      2.0
+      (length (lookfrom -| lookat))
+  in
   let material_left = Material.Dielectric { refraction_index = 1.5 } in
   let material_right =
     Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 0. }
