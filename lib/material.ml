@@ -52,7 +52,7 @@ let scatter (hit_rec : hit_record) (ray_in : Ray.t) : scatter_result option =
       in
       let unit_direction = unit_vector ray_in.direction in
       let cos_theta = Float.min 1.0 (dot (neg unit_direction) hit_rec.normal) in
-      let sin_theta = sqrt 1. -. (cos_theta *. cos_theta) in
+      let sin_theta = sqrt (1. -. (cos_theta *. cos_theta)) in
       let reflectance cos ref_idx =
         let r0 = (1. -. ref_idx) /. (1. +. ref_idx) in
         let r0 = r0 *. r0 in
