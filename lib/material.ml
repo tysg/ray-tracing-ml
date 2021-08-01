@@ -38,7 +38,7 @@ let scatter (hit_rec : hit_record) (ray_in : Ray.t) : scatter_result option =
   | Metal { albedo; fuzz } ->
       let fuzz = if fuzz < 1. then fuzz else 1. in
       let reflected =
-        reflect (unit_vector ray_in.direction) hit_rec.normal
+        Ray.reflect (unit_vector ray_in.direction) hit_rec.normal
         +| (random_in_unit_sphere () */ fuzz)
       in
       Base.Option.some_if
@@ -47,10 +47,24 @@ let scatter (hit_rec : hit_record) (ray_in : Ray.t) : scatter_result option =
         ; attenuation = albedo
         }
   | Dielectric { refraction_index = ir } ->
-      let attenuation = Color.white in
       let refraction_ratio =
         match hit_rec.facing with Front -> 1. /. ir | Back -> ir
       in
-      let unit_dir = unit_vector ray_in.direction in
-      let refracted = Ray.refract unit_dir hit_rec.normal refraction_ratio in
-      Some { scattered_ray = Ray.create hit_rec.point refracted; attenuation }
+      let unit_direction = unit_vector ray_in.direction in
+      let cos_theta = Float.min 1.0 (dot (neg unit_direction) hit_rec.normal) in
+      let sin_theta = sqrt 1. -. (cos_theta *. cos_theta) in
+      let reflectance cos ref_idx =
+        let r0 = (1. -. ref_idx) /. (1. +. ref_idx) in
+        let r0 = r0 *. r0 in
+        r0 +. ((1. -. r0) *. Float.pow (1. -. cos) 5.)
+      in
+      let direction =
+        if refraction_ratio *. sin_theta > 1.
+           || reflectance cos_theta refraction_ratio > Math.random_frac ()
+        then Ray.reflect unit_direction hit_rec.normal
+        else Ray.refract unit_direction hit_rec.normal refraction_ratio
+      in
+      Some
+        { scattered_ray = Ray.create hit_rec.point direction
+        ; attenuation = Color.white
+        }

@@ -1,20 +1,5 @@
 open Vec3
 
-type viewport =
-  { aspect_ratio : float
-  ; height : float
-  ; width : float
-  ; focal_length : float
-  }
-
-let viewport =
-  let aspect_ratio = 16. /. 9. in
-  let height = 2. in
-  let width = aspect_ratio *. height in
-  let focal_length = 1.0 in
-  { aspect_ratio; height; width; focal_length }
-
-
 type t =
   { origin : Vec3.t
   ; lower_left_corner : Vec3.t
@@ -22,15 +7,26 @@ type t =
   ; vertical : Vec3.t
   }
 
-let create viewport =
+type viewport =
+  { aspect_ratio : float
+  ; height : float
+  ; width : float
+  ; focal_length : float
+  }
+
+let create vfov aspect_ratio =
+  let viewport_height = 2. *. Float.tan (Math.to_radians vfov /. 2.) in
+  let viewport_width = aspect_ratio *. viewport_height in
+  let focal_length = 1.0 in
+
   let origin = Vec3.zero in
-  let horizontal = Vec3.create viewport.width 0. 0. in
-  let vertical = Vec3.create 0. viewport.height 0. in
+  let horizontal = Vec3.create viewport_width 0. 0. in
+  let vertical = Vec3.create 0. viewport_height 0. in
   let lower_left_corner =
     origin
     -| (horizontal // 2.)
     -| (vertical // 2.)
-    -| Vec3.create 0. 0. viewport.focal_length
+    -| Vec3.create 0. 0. focal_length
   in
   { origin; lower_left_corner; horizontal; vertical }
 

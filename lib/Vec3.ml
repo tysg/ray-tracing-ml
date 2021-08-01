@@ -72,6 +72,3 @@ let random_in_hemisphere normal =
 let is_near_zero u =
   let s = 1e-8 in
   u.x < s && u.y < s && u.z < s
-
-
-let reflect v n = v -| (n */ (2. *. dot v n))

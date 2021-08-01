@@ -26,3 +26,6 @@ let refract uv n etai_over_etat =
     n */ -.sqrt (abs_float 1. -. length_squared r_out_perp)
   in
   r_out_perp +| r_out_parallel
+
+
+let reflect v n = v -| (n */ (2. *. dot v n))

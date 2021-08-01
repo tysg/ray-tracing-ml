@@ -33,7 +33,7 @@ let rec ray_color hittable ray depth_limit =
 let render =
   let () = Random.self_init () in
   let samples_per_pixel = 100 in
-  let camera = Camera.create Camera.viewport in
+  let camera = Camera.create 90. (16. /. 9.) in
   let aspect_ratio = 16. /. 9. in
   let image_width = 400 in
   let image_height = Int.of_float (Float.of_int image_width /. aspect_ratio) in
@@ -44,24 +44,17 @@ let render =
     ^ string_of_int image_height
     ^ " "
     ^ "\n255\n" ) ;
-  let material_ground = Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
-  (* and material_center = Material.Dielectric { refraction_index = 1.5 }
-     and material_left = Material.Dielectric { refraction_index = 1.5 } *)
-  and material_center = Material.Lambertian { albedo = Vec3.create 0.1 0.2 0.3 }
-  and material_left = Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
-  and material_right =
-    Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 1. }
-  in
+
+  let material_left = Material.Lambertian { albedo = Vec3.create 0. 0. 1. } in
+  let material_right = Material.Lambertian { albedo = Vec3.create 1. 0. 0. } in
+
+  let r = Float.cos (Float.pi /. 4.) in
   let world =
     Hittable.World
       [ Hittable.Sphere
-          (Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100. material_ground)
+          (Sphere.create (Vec3.create (-.r) 0. (-1.)) r material_left)
       ; Hittable.Sphere
-          (Sphere.create (Vec3.create 0. 0. (-1.)) 0.5 material_center)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create (-1.) 0. (-1.)) 0.5 material_left)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create 1. 0. (-1.)) 0.5 material_right)
+          (Sphere.create (Vec3.create r 0. (-1.)) r material_right)
       ]
   in
   for j = image_height - 1 downto 0 do
