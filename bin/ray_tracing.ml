@@ -27,14 +27,80 @@ let rec ray_color hittable ray depth_limit =
     | None ->
         let unit_direction = unit_vector ray.direction in
         let t = 0.5 *. (unit_direction.y +. 1.0) in
+
         gradient Color.white Color.light_blue t
+
+
+let rec range a b = if a >= b then [] else a :: range (a + 1) b
+
+let cartesian l l' =
+  List.concat (List.map (fun e -> List.map (fun e' -> (e, e')) l') l)
+
+
+let random_sphere a b =
+  let open Math in
+  let open Int in
+  let choose_mat = random_frac () in
+  let center =
+    Vec3.create
+      (to_float a +. (0.9 *. random_frac ()))
+      0.2
+      (to_float b +. (0.9 *. random_frac ()))
+  in
+  if length (center -| Vec3.create 4. 0.2 0.) < 0.9
+  then None
+  else
+    let sphere_material =
+      if choose_mat < 0.8
+      then
+        (* diffuse *)
+        let albedo = Vec3.random () *| Vec3.random () in
+        Material.Lambertian { albedo }
+      else if choose_mat < 0.95
+      then
+        (* metal *)
+        let albedo = Vec3.random_range 0.5 1. in
+        let fuzz = Math.random_range 0. 0.5 in
+        Material.Metal { albedo; fuzz }
+      else (* glass *)
+        Material.Dielectric { refraction_index = 1.5 }
+    in
+
+    Some (Sphere.create center 0.2 sphere_material)
+
+
+let random_scene () =
+  Hittable.World
+    (List.map
+       (fun s -> Hittable.Sphere s)
+       ( Sphere.create
+           (Vec3.create 0. (-1000.) 0.)
+           1000.
+           (Material.Lambertian { albedo = Vec3.create 0.5 0.5 0.5 })
+       :: Sphere.create
+            (Vec3.create 0. 1. 0.)
+            1.
+            (Material.Dielectric { refraction_index = 1.5 })
+       :: Sphere.create
+            (Vec3.create (-4.) 1. 0.)
+            1.
+            (Material.Lambertian { albedo = Vec3.create 0.4 0.2 0.1 })
+       :: Sphere.create
+            (Vec3.create 4. 1. 0.)
+            1.
+            (Material.Metal { albedo = Vec3.create 0.7 0.6 0.5; fuzz = 0. })
+       :: List.flatten
+            (List.map
+               (fun (a, b) ->
+                 match random_sphere a b with Some s -> [ s ] | None -> [] )
+               (cartesian (range (-11) 10) (range (-11) 10)) ) ) )
 
 
 let render =
   let () = Random.self_init () in
-  let samples_per_pixel = 100 in
-  let aspect_ratio = 16. /. 9. in
-  let image_width = 400 in
+  let samples_per_pixel = 500 in
+  let aspect_ratio = 3. /. 2. in
+  let image_width = 1200 in
   let image_height = Int.of_float (Float.of_int image_width /. aspect_ratio) in
   print_string
     ( "P3\n"
@@ -44,8 +110,8 @@ let render =
     ^ " "
     ^ "\n255\n" ) ;
 
-  let lookfrom = Vec3.create 3. 3. 2. in
-  let lookat = Vec3.create 0. 0. (-1.) in
+  let lookfrom = Vec3.create 13. 2. 3. in
+  let lookat = Vec3.create 0. 0. 0. in
   let camera =
     Camera.create
       lookfrom
@@ -53,34 +119,10 @@ let render =
       (Vec3.create 0. 1. 0.)
       20.
       aspect_ratio
-      2.0
-      (length (lookfrom -| lookat))
+      0.1
+      10.
   in
-  let material_left = Material.Dielectric { refraction_index = 1.5 } in
-  let material_right =
-    Material.Metal { albedo = Vec3.create 0.8 0.6 0.2; fuzz = 0. }
-  in
-  let material_ground =
-    Material.Lambertian { albedo = Vec3.create 0.8 0.8 0. }
-  in
-  let material_center =
-    Material.Lambertian { albedo = Vec3.create 0.1 0.2 0.5 }
-  in
-
-  let world =
-    Hittable.World
-      [ Hittable.Sphere
-          (Sphere.create (Vec3.create 0. (-100.5) (-1.)) 100. material_ground)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create 0. 0. (-1.)) 0.5 material_center)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create (-1.) 0. (-1.)) (-0.45) material_left)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create (-1.) 0. (-1.)) 0.5 material_left)
-      ; Hittable.Sphere
-          (Sphere.create (Vec3.create 1. 0. (-1.)) 0.5 material_right)
-      ]
-  in
+  let world = random_scene () in
   for j = image_height - 1 downto 0 do
     Printf.eprintf "Scanlines remaining: %d\n" j ;
     flush stderr ;

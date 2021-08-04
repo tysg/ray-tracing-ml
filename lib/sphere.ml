@@ -1,6 +1,5 @@
 open Vec3
 open Ray
-open Base.Option
 open Material
 
 type t =
@@ -31,19 +30,22 @@ let hit (r : Ray.t) t_min t_max (sphere : t) : hit_record option =
   let oc = r.origin -| sphere.center in
   let a = length_squared r.direction in
   let half_b = dot oc r.direction in
-  let c = length_squared oc -. (sphere.radius ** 2.) in
-  find_root a half_b c t_min t_max
-  >>| fun root ->
-  let p = r @/ root in
-  let normal = (p -| sphere.center) // sphere.radius in
-  let facing = find_facing_direction r normal in
-  match facing with
-  | Front ->
-      { point = p; normal; t = root; facing; material = sphere.material }
-  | Back ->
-      { point = p
-      ; normal = neg normal
-      ; t = root
-      ; facing
-      ; material = sphere.material
-      }
+  let c = length_squared oc -. (sphere.radius *. sphere.radius) in
+  match find_root a half_b c t_min t_max with
+  | None ->
+      None
+  | Some root ->
+      let p = r @/ root in
+      let normal = (p -| sphere.center) // sphere.radius in
+      let facing = find_facing_direction r normal in
+      Some
+        ( match facing with
+        | Front ->
+            { point = p; normal; t = root; facing; material = sphere.material }
+        | Back ->
+            { point = p
+            ; normal = neg normal
+            ; t = root
+            ; facing
+            ; material = sphere.material
+            } )

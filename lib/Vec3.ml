@@ -6,7 +6,7 @@ type t =
 
 let create x y z = { x; y; z }
 
-let length_squared v = (v.x ** 2.) +. (v.y ** 2.) +. (v.z ** 2.)
+let length_squared v = (v.x *. v.x) +. (v.y *. v.y) +. (v.z *. v.z)
 
 let length v = sqrt (length_squared v)
 
@@ -48,7 +48,7 @@ let neg v = create (-.v.x) (-.v.y) (-.v.z)
 
 let map_vec3 v fn = { x = fn v.x; y = fn v.y; z = fn v.z }
 
-let random =
+let random () =
   create (Math.random_frac ()) (Math.random_frac ()) (Math.random_frac ())
 
 

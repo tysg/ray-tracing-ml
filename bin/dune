@@ -1,3 +1,6 @@
 (executable
- (name main)
- (libraries lib))
+  (name main)
+  (libraries lib)
+
+  ; (preprocess (pps landmarks.ppx --auto))
+ )
